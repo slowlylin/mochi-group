@@ -29,6 +29,7 @@ header{display:flex;flex-wrap:wrap;align-items:center;gap:12px 18px;border-botto
 .ctrls{margin-left:auto;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden}
 .seg button{background:none;border:0;color:var(--dim);font:inherit;font-size:13px;padding:6px 14px;cursor:pointer}
+.seg button:disabled{opacity:.4;cursor:not-allowed}
 .seg button[aria-pressed="true"]{background:var(--panel2);color:var(--fg);font-weight:700}
 .seg button:focus-visible,.btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .home{color:var(--dim);font-size:13px;text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:6px 14px}
@@ -129,12 +130,7 @@ footer a{color:var(--dim)}
 
   <footer>
     <span data-t="foot1"></span>
-    <span><span data-t="foot2"></span>
-      <a href="https://recycle.moenv.gov.tw/" target="_blank" rel="noopener">環境部資源回收網</a>・
-      <a href="https://www.pro360.com.tw/guide/taipei_waste_sorting" target="_blank" rel="noopener">臺北市分類整理</a>・
-      <a href="https://health.tvbs.com.tw/nutrition/360765" target="_blank" rel="noopener">蛋殼各縣市分類</a>・
-      <a href="https://www.nownews.com/news/6638453" target="_blank" rel="noopener">吸管各縣市分類</a>・
-      <a href="https://supertaste.tvbs.com.tw/food/353815" target="_blank" rel="noopener">發票與收據</a></span>
+    <span><span data-t="foot2"></span> <span id="srcs"></span></span>
     <span>小麻糬發瘋產業集團・艾奧傑亞環保局</span>
   </footer>
 </div>
@@ -142,23 +138,23 @@ footer a{color:var(--dim)}
 <script>
 const T = {
   zh:{eyebrow:'FF14副本駕訓班・特別課程',title:'艾奧傑亞環保局零式',subtitle:'台灣篇',normal:'普通',savage:'零式',home:'← 回集團總部',
-    notice:'<b>先說在前面：</b>題目照全國通用的分類規則出題，資料來源是環境部和各縣市環保局的公開資訊。標成「各縣市不同」的題目，丟哪一桶都算對，以當地清潔隊公告為準。',
+    notice:'<b>先說在前面：</b>題目照全國通用的分類規則出題，資料來源是環境部和各縣市環保局的公開資訊。標示「各縣市不同」的題目，依各地規定列出的分類選項均算正確，實際以當地清潔隊公告為準。',
     boss:'環保局長 正在詠唱',binsTitle:'回收桶',logTitle:'分類紀錄',logEmpty:'開始之後，每一題的正確答案和原因會記在這裡。',
     how:'用 <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 或方向鍵移動，手機直接點場地。詠唱結束前，站進正確的回收桶。',
     foot1:'本工具為玩笑性質的教學小遊戲。各縣市回收規定會調整，實際分類請以當地清潔隊公告為準。',foot2:'參考資料：',
     start:'開始分類判定',ready:'環保局長要考你垃圾分類', readyN:'普通：4 個回收桶，10 題，詠唱比較慢。',readyS:'零式：6 個回收桶，12 題，詠唱很快，還有地獄題。',
-    q:(i,n)=>`第 ${i} / ${n} 題`, score:(c)=>`答對 ${c} 題`, casting:'垃圾分類判定：', ok:'判定成功', disp:'各縣市不同，這題丟哪一桶都算對：',
+    q:(i,n)=>`第 ${i} / ${n} 題`, score:(c)=>`答對 ${c} 題`, casting:'垃圾分類判定：', ok:'判定成功', disp:'各縣市不同，以下分類都算對：',
     died:'你已經死了',answer:'正確答案：',cont:'繼續（Space）',endTitle:'考試結束',save:'📸 存證照',again:'再考一次',hint:'手機可以長按圖片儲存',
     nowhere:'站在中間不是分類，是逃避。', footName:'小麻糬發瘋產業集團', lic:'艾奧傑亞環保局・分類資格證', licSP:'《垃圾車追逐者》專業證照', item:'考試物品', modeL:'難度', res:'結果', pts:'分', of:'題',
     pass:'合格', fail:'不及格', special:'特殊資格', date:'考試日期'},
   ja:{eyebrow:'FF14ダンジョン教習所・特別講座',title:'エオルゼア環境局 零式',subtitle:'台湾編',normal:'ノーマル',savage:'零式',home:'← グループ本社へ',
-    notice:'<b>はじめに：</b>問題は台湾全国共通の分別ルールに基づき、環境部と各県市の環境保護局の公開情報を参考にしています。「県市によって異なる」問題はどの箱でも正解です。実際は地元の清掃隊の案内に従ってください。',
-    boss:'環境局長 詠唱中',binsTitle:'ごみ箱',logTitle:'分別の記録',logEmpty:'開始すると、各問題の正解と理由がここに記録されます。',
-    how:'<kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> か矢印キーで移動、スマホはフィールドをタップ。詠唱が終わる前に正しいごみ箱に入ってください。',
+    notice:'<b>はじめに：</b>問題は台湾全国共通の分別ルールに基づき、環境部と各県市の環境保護局の公開情報を参考にしています。「台湾の県・市によって異なる」問題は、各地のルールで認められている分類ならどれでも正解です。実際は地元の清掃隊の案内に従ってください。<br>※ このゲームの「生ごみ」は台湾の「廚餘」回収（堆肥・飼料用）のことで、日本の分別ルールとは異なります。',
+    boss:'環境局長が詠唱中',binsTitle:'ごみ箱',logTitle:'分別の記録',logEmpty:'開始すると、各問題の正解と理由がここに記録されます。',
+    how:'<kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> か矢印キーで移動、スマホではフィールドをタップして移動。詠唱が終わる前に正しいごみ箱に入ってください。',
     foot1:'このツールはジョーク半分の学習ミニゲームです。分別ルールは自治体によって変わるので、実際は地元の清掃隊の案内に従ってください。',foot2:'参考資料（中国語）：',
-    start:'分別判定スタート',ready:'環境局長がごみ分別を出題します', readyN:'ノーマル：ごみ箱4つ、10問、詠唱はゆっくり。',readyS:'零式：ごみ箱6つ、12問、詠唱が速くて地獄問題あり。',
-    q:(i,n)=>`第 ${i} / ${n} 問`, score:(c)=>`正解 ${c} 問`, casting:'ごみ分別判定：', ok:'判定成功', disp:'県市によって異なるため、この問題はどれでも正解：',
-    died:'あなたは死んだ',answer:'正解：',cont:'続ける（Space）',endTitle:'試験終了',save:'📸 免許を保存',again:'もう一回',hint:'スマホは画像を長押しで保存',
+    start:'分別判定スタート',ready:'環境局長がごみ分別を出題します', readyN:'ノーマル：ごみ箱は4つ、全10問、詠唱時間は長め。',readyS:'零式：ごみ箱は6つ、全12問、詠唱時間は短め。地獄問題あり。',
+    q:(i,n)=>`第 ${i} / ${n} 問`, score:(c)=>`正解 ${c} 問`, casting:'ごみ分別判定：', ok:'判定成功', disp:'台湾の県・市によって異なるため、次の分類はどれも正解：',
+    died:'あなたは死んだ',answer:'正解：',cont:'続ける（Space）',endTitle:'試験終了',save:'📸 認定証を保存',again:'もう一回',hint:'スマホは画像を長押しで保存',
     nowhere:'真ん中に立つのは分別ではなく、現実逃避だ。', footName:'小麻糬発狂産業グループ', lic:'エオルゼア環境局・分別資格証', licSP:'《ごみ収集車を追う者》専門資格証', item:'試験品目', modeL:'難易度', res:'結果', pts:'点', of:'問',
     pass:'合格', fail:'不合格', special:'特別資格', date:'試験日'}
 };
@@ -173,14 +169,14 @@ const BINS = {
 const WRONG = {
   paper:{zh:'紙類回收桶表示：我不是什麼都收。',ja:'紙類の箱：何でも受け取るわけではない。'},
   plastic:{zh:'塑膠回收桶拒絕了你的好意。',ja:'プラスチックの箱はあなたの好意を断った。'},
-  food:{zh:'廚餘桶：這個做不成肥料，豬也不吃。',ja:'生ごみの箱：これは肥料にもならないし、豚も食べない。'},
+  food:{zh:'廚餘桶表示：我只收廚餘，不負責消化你的判斷失誤。',ja:'生ごみの箱：生ごみ専門です。あなたの判断ミスは消化できません。'},
   general:{zh:'可回收的東西被你送去焚化爐了。',ja:'リサイクルできる物を焼却炉に送ってしまった。'},
-  metal:{zh:'它不是金屬，你的判斷也沒有很硬。',ja:'それは金属ではない。あなたの判断も硬くはない。'},
+  metal:{zh:'它不是金屬，你的判斷也沒有很硬。',ja:'缶の箱：缶以外はお断りです。'},
   glass:{zh:'玻璃桶一眼就看穿了你。',ja:'ガラスの箱にすべて見透かされた。'},
 };
 // tier: n＝普通也會出、s＝零式限定；ok＝算對的桶；disp＝各縣市不同
 const ITEMS = [
-  {e:'📰',zh:'舊報紙',ja:'古新聞',ok:['paper'],t:'n',why:{zh:'乾淨的報紙屬於紙類，可以回收。',ja:'きれいな新聞紙は紙類としてリサイクルできます。'}},
+  {e:'📰',zh:'舊報紙',ja:'古新聞紙',ok:['paper'],t:'n',why:{zh:'乾淨的報紙屬於紙類，可以回收。',ja:'きれいな新聞紙は紙類としてリサイクルできます。'}},
   {e:'📦',zh:'攤平的紙箱',ja:'たたんだ段ボール',ok:['paper'],t:'n',why:{zh:'紙箱屬於紙類，攤平後回收。',ja:'段ボールは紙類。たたんでから出します。'}},
   {e:'🧴',zh:'喝完的寶特瓶',ja:'飲み終わったペットボトル',ok:['plastic'],t:'n',why:{zh:'寶特瓶倒空、壓扁後屬於塑膠類回收。',ja:'ペットボトルは中を空にしてつぶし、プラスチックとして回収。'}},
   {e:'🧻',zh:'用過的衛生紙',ja:'使用済みティッシュ',ok:['general'],t:'n',why:{zh:'衛生紙纖維短又髒污，不能回收，也不是廚餘，要丟一般垃圾。',ja:'ティッシュは繊維が短く汚れているので、リサイクルも生ごみも不可。一般ごみです。'},die:{zh:'它是紙，但它不配。',ja:'それは紙だが、その資格はない。'}},
@@ -192,7 +188,6 @@ const ITEMS = [
   {e:'😷',zh:'用過的口罩',ja:'使用済みマスク',ok:['general'],t:'n',why:{zh:'用過的口罩屬於一般垃圾。',ja:'使用済みマスクは一般ごみです。'}},
   {e:'🧾',zh:'感熱紙收據',ja:'感熱紙のレシート',ok:['general'],t:'n',why:{zh:'感熱紙有化學塗層，環境部說明不能回收，要丟一般垃圾。',ja:'感熱紙は化学コーティングがあり、リサイクル不可。一般ごみです。'},die:{zh:'它看起來像紙，其實是化學實驗。',ja:'紙に見えて、実は化学実験だ。'}},
   {e:'🍱',zh:'洗乾淨的紙便當盒',ja:'洗った紙の弁当箱',ok:['paper'],t:'n',why:{zh:'紙餐具洗乾淨可以回收（紙容器），送去專門的處理廠。',ja:'紙の食器は洗えばリサイクル可能（紙容器）。'}},
-  {e:'🍛',zh:'沒洗、沾滿油的紙便當盒',ja:'洗っていない油まみれの紙弁当箱',ok:['general'],t:'n',why:{zh:'沾油髒污的紙容器不能回收。想回收的話要先洗乾淨。',ja:'油で汚れた紙容器はリサイクル不可。リサイクルするなら洗ってから。'},die:{zh:'你把咖哩送去當再生紙了。',ja:'カレーを再生紙にしようとした。'}},
   {e:'🛍️',zh:'乾淨的塑膠袋',ja:'きれいなレジ袋',ok:['plastic'],t:'n',why:{zh:'乾淨的塑膠袋可以回收；沾到食物的要丟一般垃圾。',ja:'きれいなレジ袋はリサイクル可。食べ物で汚れたものは一般ごみ。'}},
   {e:'🎁',zh:'吸管外面的透明包裝',ja:'ストローの透明な包装',ok:['general'],t:'n',why:{zh:'吸管外面的透明塑膠包裝，全台縣市一律算一般垃圾。',ja:'ストローの透明包装は、台湾全県市で一般ごみです。'}},
   {e:'🥭',zh:'芒果籽',ja:'マンゴーの種',ok:['food'],t:'n',why:{zh:'果核屬於廚餘。豬不吃沒關係，它是拿去做堆肥的（以前叫「堆肥廚餘」）。',ja:'果物の種は生ごみ。豚は食べなくても、堆肥になります。'}},
@@ -213,6 +208,12 @@ const ITEMS = [
   {e:'🥤',zh:'洗乾淨的紙杯',ja:'洗った紙コップ',ok:['paper'],t:'s',why:{zh:'紙杯屬於紙容器，洗乾淨就能回收。',ja:'紙コップは紙容器。洗えばリサイクル可能。'}},
 ];
 const WRONG_FOOD={zh:'它本來可以變成肥料，你把它送去焚化爐了。',ja:'肥料になれたはずなのに、焼却炉に送ってしまった。'};
+const SRCS=[
+  ['https://recycle.moenv.gov.tw/',{zh:'環境部資源回收網',ja:'台湾環境部 資源リサイクルサイト'}],
+  ['https://www.pro360.com.tw/guide/taipei_waste_sorting',{zh:'臺北市分類整理',ja:'台北市の分別まとめ'}],
+  ['https://health.tvbs.com.tw/nutrition/360765',{zh:'蛋殼各縣市分類',ja:'卵の殻の県市別ルール'}],
+  ['https://www.nownews.com/news/6638453',{zh:'吸管各縣市分類',ja:'ストローの県市別ルール'}],
+  ['https://supertaste.tvbs.com.tw/food/353815',{zh:'發票與收據',ja:'発票とレシート'}]];
 const MODES = {n:{bins:['paper','plastic','food','general'],count:10,cast:6.5}, s:{bins:['paper','plastic','metal','glass','food','general'],count:12,cast:4.2}};
 const LS=k=>{try{return localStorage.getItem(k)}catch(e){return null}}, SS=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
 let lang = LS('epa_lang')==='ja'?'ja':'zh', mode = LS('epa_mode')==='s'?'s':'n';
@@ -233,7 +234,11 @@ function applyLang(){
   $('mode-n').setAttribute('aria-pressed',mode==='n'); $('mode-s').setAttribute('aria-pressed',mode==='s');
   $('legend').innerHTML=MODES[mode].bins.map(b=>`<span><i style="background:var(${BINS[b].c})"></i>${BINS[b][lang]}</span>`).join('');
   renderLog(); hud();
-  if(G.state==='idle'||G.state==='end') showReady(G.state==='end');
+  $('srcs').innerHTML=SRCS.map(([u,n])=>`<a href="${u}" target="_blank" rel="noopener">${n[lang]}</a>`).join('・');
+  if(G.state==='idle') showReady(false);
+  else if(G.state==='dead') showDeath();
+  else if(G.state==='end') showEnd();
+  modeBtns();
 }
 function hud(){ const n=MODES[mode].count; $('hudQ').textContent = G.q? tr('q')(Math.min(G.idx+1,n),n) : ''; $('hudScore').textContent = G.q? tr('score')(G.correct) : ''; }
 function renderLog(){
@@ -255,9 +260,10 @@ function showReady(again){
   $('go').onclick=start;
 }
 function start(){
-  G={state:'cast', q:pickQuestions(), idx:0, correct:0, log:[], p:{x:C.x,y:C.y+W*0.12}, target:null, t0:performance.now()/1000, castLen:MODES[mode].cast+1, flash:null};
-  hideOv(); renderLog(); hud(); setCast();
+  G={state:'cast', tap:null, q:pickQuestions(), idx:0, correct:0, log:[], p:{x:C.x,y:C.y+W*0.12}, target:null, t0:performance.now()/1000, castLen:MODES[mode].cast+1, flash:null};
+  hideOv(); renderLog(); hud(); setCast(); modeBtns();
 }
+function modeBtns(){ const busy=['cast','pause','dead'].includes(G.state); ['mode-n','mode-s'].forEach(id=>{ $(id).disabled=busy; }); }
 function setCast(){ const it=G.q[G.idx]; $('castName').textContent=`${tr('casting')}${it.e} ${it[lang]}`; }
 function resolve(){
   const it=G.q[G.idx];
@@ -265,10 +271,15 @@ function resolve(){
   const ok = inBin && it.ok.includes(inBin.b);
   G.log.push({it,ok}); renderLog();
   if(ok){ G.correct++; G.flash={x:inBin.x,y:inBin.y,t:performance.now()/1000,c:css('--accent')}; G.state='pause'; G.resumeAt=performance.now()/1000+1.4; hud(); return; }
-  G.state='dead';
+  G.state='dead'; G.dead={inBin:inBin?inBin.b:null}; modeBtns();
+  showDeath();
+  hud();
+}
+function showDeath(){
+  const it=G.q[G.idx], inBin=G.dead.inBin?{b:G.dead.inBin}:null;
   const quip = it.die? it.die[lang] : !inBin? tr('nowhere') : (inBin.b==='general' && it.ok.includes('food'))? WRONG_FOOD[lang] : WRONG[inBin.b][lang];
   ov(`<span class="t">${tr('died')}</span><span class="s">YOU DIED</span><p class="q">${quip}</p><hr><p>${it.e} ${it[lang]}</p><p class="ans">${tr('answer')}${it.ok.map(b=>BINS[b][lang]).join(' / ')}</p><p class="why">${it.why[lang]}</p>${it.disp?`<p class="disp">※ ${tr('disp')}${it.ok.map(b=>BINS[b][lang]).join('、')}</p>`:''}<div class="btns"><button class="btn pri" id="cont" type="button">${tr('cont')}</button></div>`,'death');
-  $('cont').onclick=next; hud();
+  $('cont').onclick=next;
 }
 function next(){
   hideOv(); G.idx++;
@@ -320,7 +331,10 @@ function drawLicense(){
   return {url:el.toDataURL('image/png'), score, SP};
 }
 function finish(){
-  G.state='end'; $('castName').textContent='—'; $('castFill').style.width='0';
+  G.state='end'; $('castName').textContent='—'; $('castFill').style.width='0'; modeBtns();
+  showEnd();
+}
+function showEnd(){
   let lic=null; try{ lic=drawLicense(); }catch(e){}
   G.licURL=lic&&lic.url;
   ov(`<h3>${tr('endTitle')}：${lic?lic.score:''}${tr('pts')}</h3>${lic?`<img src="${lic.url}" alt="${tr('lic')}"><p class="how">${tr('hint')}</p>`:''}<div class="btns">${lic?`<button class="btn gold" id="save" type="button">${tr('save')}</button>`:''}<button class="btn pri" id="again" type="button">${tr('again')}</button></div>`);
@@ -332,7 +346,7 @@ function finish(){
 addEventListener('keydown',e=>{ const k=e.key.toLowerCase(); if(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright'].includes(k)){ keys[k]=true; if(G.state==='cast'){ e.preventDefault(); G.target=null; } }
   if(e.code==='Space'&&G.state==='dead'){ e.preventDefault(); next(); } });
 addEventListener('keyup',e=>{ keys[e.key.toLowerCase()]=false; });
-cv.addEventListener('pointerdown',e=>{ if(G.state!=='cast'&&G.state!=='pause') return; const r=cv.getBoundingClientRect(); G.target={x:(e.clientX-r.left)/r.width*W, y:(e.clientY-r.top)/r.height*H}; });
+cv.addEventListener('pointerdown',e=>{ if(G.state!=='cast'&&G.state!=='pause') return; const r=cv.getBoundingClientRect(); G.target={x:(e.clientX-r.left)/r.width*W, y:(e.clientY-r.top)/r.height*H}; G.tap={x:G.target.x,y:G.target.y,t:performance.now()/1000}; });
 
 function emoji(x,s,X,Y){ x.font=`${s}px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif`; x.textAlign='center'; x.textBaseline='middle'; x.fillText(s>0?X:'',Y.x,Y.y); }
 let last=performance.now()/1000;
@@ -369,6 +383,7 @@ function draw(now){
   // 玩家
   if(G.p){ x.fillStyle='#ffffff'; x.strokeStyle='#08231a'; x.lineWidth=4; x.beginPath(); x.arc(G.p.x,G.p.y,15,0,Math.PI*2); x.fill(); x.stroke();
     x.fillStyle='#6fd3a0'; x.font='700 18px "Noto Sans TC",sans-serif'; x.textAlign='center'; x.textBaseline='bottom'; x.fillText(lang==='zh'?'你':'あなた',G.p.x,G.p.y-18);
+    if(G.tap && now-G.tap.t<0.6){ const a=1-(now-G.tap.t)/0.6; x.strokeStyle=`rgba(255,255,255,${a})`; x.lineWidth=3; x.beginPath(); x.arc(G.tap.x,G.tap.y,8+22*(1-a),0,Math.PI*2); x.stroke(); }
     if(G.target){ x.strokeStyle='rgba(255,255,255,.4)'; x.setLineDash([6,6]); x.beginPath(); x.moveTo(G.p.x,G.p.y); x.lineTo(G.target.x,G.target.y); x.stroke(); x.setLineDash([]); } }
 }
 
