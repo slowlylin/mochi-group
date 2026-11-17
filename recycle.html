@@ -173,7 +173,7 @@ const BINS = {
 const WRONG = {
   paper:{zh:'紙類回收桶表示：我不是什麼都收。',ja:'紙類の箱：何でも受け取るわけではない。'},
   plastic:{zh:'塑膠回收桶拒絕了你的好意。',ja:'プラスチックの箱はあなたの好意を断った。'},
-  food:{zh:'廚餘桶：這個連豬都不吃。',ja:'生ごみの箱：これは豚も食べない。'},
+  food:{zh:'廚餘桶：這個做不成肥料，豬也不吃。',ja:'生ごみの箱：これは肥料にもならないし、豚も食べない。'},
   general:{zh:'可回收的東西被你送去焚化爐了。',ja:'リサイクルできる物を焼却炉に送ってしまった。'},
   metal:{zh:'它不是金屬，你的判斷也沒有很硬。',ja:'それは金属ではない。あなたの判断も硬くはない。'},
   glass:{zh:'玻璃桶一眼就看穿了你。',ja:'ガラスの箱にすべて見透かされた。'},
@@ -184,9 +184,9 @@ const ITEMS = [
   {e:'📦',zh:'攤平的紙箱',ja:'たたんだ段ボール',ok:['paper'],t:'n',why:{zh:'紙箱屬於紙類，攤平後回收。',ja:'段ボールは紙類。たたんでから出します。'}},
   {e:'🧴',zh:'喝完的寶特瓶',ja:'飲み終わったペットボトル',ok:['plastic'],t:'n',why:{zh:'寶特瓶倒空、壓扁後屬於塑膠類回收。',ja:'ペットボトルは中を空にしてつぶし、プラスチックとして回収。'}},
   {e:'🧻',zh:'用過的衛生紙',ja:'使用済みティッシュ',ok:['general'],t:'n',why:{zh:'衛生紙纖維短又髒污，不能回收，也不是廚餘，要丟一般垃圾。',ja:'ティッシュは繊維が短く汚れているので、リサイクルも生ごみも不可。一般ごみです。'},die:{zh:'它是紙，但它不配。',ja:'それは紙だが、その資格はない。'}},
-  {e:'🍌',zh:'香蕉皮',ja:'バナナの皮',ok:['food'],t:'n',why:{zh:'果皮屬於廚餘。',ja:'果物の皮は生ごみです。'}},
-  {e:'🍚',zh:'吃剩的白飯',ja:'食べ残しのご飯',ok:['food'],t:'n',why:{zh:'吃剩的食物屬於廚餘，先把湯汁瀝乾。',ja:'食べ残しは生ごみ。汁気を切ってから出します。'}},
-  {e:'🍵',zh:'茶葉渣',ja:'茶殻',ok:['food'],t:'n',why:{zh:'臺北市等多數縣市公告茶葉渣屬於廚餘，記得瀝乾水分。',ja:'台北市など多くの県市では茶殻は生ごみ。水気を切って出します。'}},
+  {e:'🍌',zh:'香蕉皮',ja:'バナナの皮',ok:['food'],t:'n',why:{zh:'果皮屬於廚餘。它不是給豬吃的，是拿去做堆肥（以前叫「堆肥廚餘」）。',ja:'果物の皮は生ごみ。豚のエサではなく、堆肥になります。'}},
+  {e:'🍚',zh:'吃剩的白飯',ja:'食べ残しのご飯',ok:['food'],t:'n',why:{zh:'吃剩的食物屬於廚餘，先把湯汁瀝乾。以前分「養豬」和「堆肥」兩種，臺北市從 115 年起統一叫廚餘。',ja:'食べ残しは生ごみ。汁気を切ってから。台北市では2026年から「養豚用」と「堆肥用」の区別がなくなりました。'}},
+  {e:'🍵',zh:'茶葉渣',ja:'茶殻',ok:['food'],t:'n',why:{zh:'臺北市等多數縣市公告茶葉渣屬於廚餘，拿去做堆肥，記得瀝乾水分。',ja:'台北市など多くの県市では茶殻は生ごみ（堆肥用）。水気を切って出します。'}},
   {e:'🍗',zh:'沾滿油的鹽酥雞紙袋',ja:'油まみれの台湾唐揚げの紙袋',ok:['general'],t:'n',why:{zh:'被油汙染的紙不能回收，要丟一般垃圾。',ja:'油で汚れた紙はリサイクルできません。一般ごみです。'},die:{zh:'它裝過雞屁股。',ja:'それは鶏のお尻を入れていた袋だ。'}},
   {e:'🍢',zh:'竹籤',ja:'竹串',ok:['general'],t:'n',why:{zh:'竹籤不能回收，丟一般垃圾前先折斷，免得刺破垃圾袋。',ja:'竹串はリサイクル不可。袋が破れないよう折ってから一般ごみへ。'}},
   {e:'😷',zh:'用過的口罩',ja:'使用済みマスク',ok:['general'],t:'n',why:{zh:'用過的口罩屬於一般垃圾。',ja:'使用済みマスクは一般ごみです。'}},
@@ -195,7 +195,7 @@ const ITEMS = [
   {e:'🍛',zh:'沒洗、沾滿油的紙便當盒',ja:'洗っていない油まみれの紙弁当箱',ok:['general'],t:'n',why:{zh:'沾油髒污的紙容器不能回收。想回收的話要先洗乾淨。',ja:'油で汚れた紙容器はリサイクル不可。リサイクルするなら洗ってから。'},die:{zh:'你把咖哩送去當再生紙了。',ja:'カレーを再生紙にしようとした。'}},
   {e:'🛍️',zh:'乾淨的塑膠袋',ja:'きれいなレジ袋',ok:['plastic'],t:'n',why:{zh:'乾淨的塑膠袋可以回收；沾到食物的要丟一般垃圾。',ja:'きれいなレジ袋はリサイクル可。食べ物で汚れたものは一般ごみ。'}},
   {e:'🎁',zh:'吸管外面的透明包裝',ja:'ストローの透明な包装',ok:['general'],t:'n',why:{zh:'吸管外面的透明塑膠包裝，全台縣市一律算一般垃圾。',ja:'ストローの透明包装は、台湾全県市で一般ごみです。'}},
-  {e:'🥭',zh:'芒果籽',ja:'マンゴーの種',ok:['food'],t:'n',why:{zh:'果核屬於廚餘。',ja:'果物の種は生ごみです。'}},
+  {e:'🥭',zh:'芒果籽',ja:'マンゴーの種',ok:['food'],t:'n',why:{zh:'果核屬於廚餘。豬不吃沒關係，它是拿去做堆肥的（以前叫「堆肥廚餘」）。',ja:'果物の種は生ごみ。豚は食べなくても、堆肥になります。'}},
   {e:'🌿',zh:'吃剩的九層塔',ja:'食べ残したバジル',ok:['food'],t:'n',why:{zh:'吃剩的熟食屬於廚餘。',ja:'食べ残しの料理は生ごみです。'}},
   {e:'🧋',zh:'洗乾淨的手搖飲塑膠杯',ja:'洗ったタピオカドリンクのカップ',ok:['plastic'],t:'n',why:{zh:'飲料倒掉、杯子洗乾淨，屬於塑膠類回收。',ja:'中身を捨てて洗ったカップはプラスチックとして回収。'}},
   {e:'⚫',zh:'喝剩的珍珠',ja:'飲み残しのタピオカ',ok:['food'],t:'n',why:{zh:'珍珠是食物，屬於廚餘。',ja:'タピオカは食べ物なので生ごみ。'},die:{zh:'珍珠表示：我是食物，我有尊嚴。',ja:'タピオカ：私は食べ物だ。尊厳がある。'}},
@@ -212,6 +212,7 @@ const ITEMS = [
   {e:'⬜',zh:'乾淨的保麗龍盒',ja:'きれいな発泡スチロール',ok:['plastic'],t:'s',why:{zh:'乾淨的保麗龍屬於塑膠類回收（臺北市列在立體類）；沾油的要丟一般垃圾。',ja:'きれいな発泡スチロールはプラスチックとして回収。油汚れのあるものは一般ごみ。'}},
   {e:'🥤',zh:'洗乾淨的紙杯',ja:'洗った紙コップ',ok:['paper'],t:'s',why:{zh:'紙杯屬於紙容器，洗乾淨就能回收。',ja:'紙コップは紙容器。洗えばリサイクル可能。'}},
 ];
+const WRONG_FOOD={zh:'它本來可以變成肥料，你把它送去焚化爐了。',ja:'肥料になれたはずなのに、焼却炉に送ってしまった。'};
 const MODES = {n:{bins:['paper','plastic','food','general'],count:10,cast:6.5}, s:{bins:['paper','plastic','metal','glass','food','general'],count:12,cast:4.2}};
 const LS=k=>{try{return localStorage.getItem(k)}catch(e){return null}}, SS=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
 let lang = LS('epa_lang')==='ja'?'ja':'zh', mode = LS('epa_mode')==='s'?'s':'n';
@@ -265,7 +266,7 @@ function resolve(){
   G.log.push({it,ok}); renderLog();
   if(ok){ G.correct++; G.flash={x:inBin.x,y:inBin.y,t:performance.now()/1000,c:css('--accent')}; G.state='pause'; G.resumeAt=performance.now()/1000+1.4; hud(); return; }
   G.state='dead';
-  const quip = it.die? it.die[lang] : inBin? WRONG[inBin.b][lang] : tr('nowhere');
+  const quip = it.die? it.die[lang] : !inBin? tr('nowhere') : (inBin.b==='general' && it.ok.includes('food'))? WRONG_FOOD[lang] : WRONG[inBin.b][lang];
   ov(`<span class="t">${tr('died')}</span><span class="s">YOU DIED</span><p class="q">${quip}</p><hr><p>${it.e} ${it[lang]}</p><p class="ans">${tr('answer')}${it.ok.map(b=>BINS[b][lang]).join(' / ')}</p><p class="why">${it.why[lang]}</p>${it.disp?`<p class="disp">※ ${tr('disp')}${it.ok.map(b=>BINS[b][lang]).join('、')}</p>`:''}<div class="btns"><button class="btn pri" id="cont" type="button">${tr('cont')}</button></div>`,'death');
   $('cont').onclick=next; hud();
 }
