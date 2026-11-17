@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"></head>
+<body>
+<title>艾奧傑亞環保局零式</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="icon" href="/mochi.png" type="image/png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Noto+Sans+JP:wght@400;700;900&family=Noto+Serif+TC:wght@700;900&display=swap">
+<style>
+/* 版面：左邊是副本場地（Canvas），右邊是詠唱條＋分類紀錄；手機時上下堆疊。單一深色「副本 HUD」風格。 */
+:root{
+  --bg:#0c1311; --panel:#121d1a; --panel2:#182622; --line:rgba(140,200,170,.18);
+  --fg:#e9f1ec; --dim:#93a89f; --accent:#6fd3a0; --gold:#e8c27a; --bad:#ff5c74;
+  --paper:#4a8fe0; --plastic:#e0505a; --food:#e8c440; --general:#48b06a; --metal:#9aa7b4; --glass:#4fc6c6;
+  --f-body:"Noto Sans TC","Noto Sans JP","PingFang TC","Microsoft JhengHei",sans-serif;
+  --f-disp:"Noto Serif TC","Noto Serif JP",serif;
+  color-scheme:dark;
+}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:15px;line-height:1.6}
+.wrap{max-width:1180px;margin:0 auto;padding-block:18px 40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:16px}
+header{display:flex;flex-wrap:wrap;align-items:center;gap:12px 18px;border-bottom:1px solid var(--line);padding-bottom:14px}
+.brand{display:flex;flex-direction:column;gap:2px;min-width:0}
+.brand .eyebrow{font-size:12px;letter-spacing:.18em;color:var(--accent);font-weight:700}
+.brand h1{margin:0;font-family:var(--f-disp);font-weight:900;font-size:clamp(22px,4vw,32px);letter-spacing:.04em;text-wrap:balance}
+.brand h1 small{font-size:.6em;color:var(--gold);margin-left:.4em}
+.ctrls{margin-left:auto;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden}
+.seg button{background:none;border:0;color:var(--dim);font:inherit;font-size:13px;padding:6px 14px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--panel2);color:var(--fg);font-weight:700}
+.seg button:focus-visible,.btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.home{color:var(--dim);font-size:13px;text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:6px 14px}
+.home:hover{color:var(--accent);border-color:var(--accent)}
+.note{font-size:13px;color:var(--dim);border-left:3px solid var(--gold);padding:8px 12px;background:var(--panel)}
+.note b{color:var(--gold)}
+.main{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:16px;align-items:start}
+@media (max-width:860px){.main{grid-template-columns:1fr}}
+.stage{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px;min-width:0}
+.castbar{display:flex;flex-direction:column;gap:6px;margin-bottom:10px;min-height:58px}
+.castbar .who{font-size:12px;color:var(--dim);letter-spacing:.08em}
+.castbar .name{font-size:18px;font-weight:700}
+.bar{height:8px;background:var(--panel2);border-radius:99px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--gold),#ffdf9e)}
+canvas#arena{display:block;width:100%;max-width:640px;aspect-ratio:1/1;margin:0 auto;border-radius:10px;touch-action:none;cursor:crosshair}
+.hud{display:flex;justify-content:space-between;font-size:13px;color:var(--dim);margin-top:8px;font-variant-numeric:tabular-nums}
+.side{display:flex;flex-direction:column;gap:12px;min-width:0}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px}
+.card h2{margin:0 0 8px;font-size:14px;letter-spacing:.12em;color:var(--accent)}
+.legend{display:grid;grid-template-columns:1fr 1fr;gap:6px 10px;font-size:13px}
+.legend span{display:flex;align-items:center;gap:6px}
+.legend i{width:12px;height:12px;border-radius:3px;flex-shrink:0}
+.log{display:flex;flex-direction:column;gap:8px;max-height:420px;overflow:auto;font-size:13px}
+.log .row{border-top:1px solid var(--line);padding-top:8px}
+.log .row:first-child{border-top:0;padding-top:0}
+.log .ok{color:var(--accent);font-weight:700}.log .ng{color:var(--bad);font-weight:700}
+.log .why{color:var(--dim)}
+.log .disp{color:var(--gold)}
+.empty{color:var(--dim);font-size:13px}
+.btn{font:inherit;cursor:pointer;border-radius:10px;border:1px solid var(--line);background:var(--panel2);color:var(--fg);padding:9px 16px;font-weight:700}
+.btn.pri{background:var(--accent);color:#08231a;border-color:var(--accent)}
+.btn.gold{border-color:var(--gold);color:var(--gold);background:none}
+.ov{position:absolute;inset:12px;display:flex;align-items:center;justify-content:center;background:rgba(6,10,9,.72);border-radius:10px;padding:16px;overflow:auto}
+.ovbox{max-width:540px;width:100%;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:10px;text-align:center}
+.ovbox h3{margin:0;font-size:22px}
+.ovbox p{margin:0}
+.ovbox .btns{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:6px}
+.ovbox.death{background:#140b0e;border-color:rgba(255,92,116,.5)}
+.ovbox.death .t{font-size:34px;font-weight:900;color:var(--bad);font-family:var(--f-disp);letter-spacing:.08em}
+.ovbox.death .s{font-size:12px;letter-spacing:.3em;color:#c9a0a8}
+.ovbox.death .q{font-size:17px}
+.ovbox.death hr{border:0;border-top:1px solid rgba(255,92,116,.35);margin:4px 0;width:100%}
+.ovbox .ans{font-weight:700;color:var(--accent)}
+.ovbox .why{font-size:14px;color:var(--dim)}
+.ovbox .disp{font-size:13px;color:var(--gold)}
+.ovbox img{width:100%;border-radius:12px}
+.how{font-size:13px;color:var(--dim)}
+.how kbd{border:1px solid var(--line);border-radius:4px;padding:0 5px;font-size:12px;color:var(--fg)}
+footer{font-size:12px;color:var(--dim);border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:4px}
+footer a{color:var(--dim)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <span class="eyebrow" data-t="eyebrow"></span>
+      <h1><span data-t="title"></span><small data-t="subtitle"></small></h1>
+    </div>
+    <div class="ctrls">
+      <div class="seg" role="group" aria-label="語言 / 言語">
+        <button id="lang-zh" type="button" aria-pressed="true">中文</button>
+        <button id="lang-ja" type="button" aria-pressed="false">日本語</button>
+      </div>
+      <div class="seg" role="group" aria-label="難度">
+        <button id="mode-n" type="button" aria-pressed="true" data-t="normal"></button>
+        <button id="mode-s" type="button" aria-pressed="false" data-t="savage"></button>
+      </div>
+      <a class="home" href="index.html" data-t="home"></a>
+    </div>
+  </header>
+
+  <p class="note" data-t-html="notice"></p>
+
+  <div class="main">
+    <div class="stage">
+      <div class="castbar">
+        <span class="who" data-t="boss"></span>
+        <span class="name" id="castName">—</span>
+        <div class="bar"><i id="castFill"></i></div>
+      </div>
+      <canvas id="arena" width="720" height="720" aria-label="分類場地"></canvas>
+      <div class="hud"><span id="hudQ"></span><span id="hudScore"></span></div>
+      <div class="ov" id="ov"></div>
+    </div>
+    <div class="side">
+      <div class="card">
+        <h2 data-t="binsTitle"></h2>
+        <div class="legend" id="legend"></div>
+        <p class="how" data-t-html="how" style="margin:10px 0 0"></p>
+      </div>
+      <div class="card">
+        <h2 data-t="logTitle"></h2>
+        <div class="log" id="log"><span class="empty" data-t="logEmpty"></span></div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <span data-t="foot1"></span>
+    <span><span data-t="foot2"></span>
+      <a href="https://recycle.moenv.gov.tw/" target="_blank" rel="noopener">環境部資源回收網</a>・
+      <a href="https://www.pro360.com.tw/guide/taipei_waste_sorting" target="_blank" rel="noopener">臺北市分類整理</a>・
+      <a href="https://health.tvbs.com.tw/nutrition/360765" target="_blank" rel="noopener">蛋殼各縣市分類</a>・
+      <a href="https://www.nownews.com/news/6638453" target="_blank" rel="noopener">吸管各縣市分類</a>・
+      <a href="https://supertaste.tvbs.com.tw/food/353815" target="_blank" rel="noopener">發票與收據</a></span>
+    <span>小麻糬發瘋產業集團・艾奧傑亞環保局</span>
+  </footer>
+</div>
+
+<script>
+const T = {
+  zh:{eyebrow:'FF14副本駕訓班・特別課程',title:'艾奧傑亞環保局零式',subtitle:'台灣篇',normal:'普通',savage:'零式',home:'← 回集團總部',
+    notice:'<b>先說在前面：</b>題目照全國通用的分類規則出題，資料來源是環境部和各縣市環保局的公開資訊。標成「各縣市不同」的題目，丟哪一桶都算對，以當地清潔隊公告為準。',
+    boss:'環保局長 正在詠唱',binsTitle:'回收桶',logTitle:'分類紀錄',logEmpty:'開始之後，每一題的正確答案和原因會記在這裡。',
+    how:'用 <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 或方向鍵移動，手機直接點場地。詠唱結束前，站進正確的回收桶。',
+    foot1:'本工具為玩笑性質的教學小遊戲。各縣市回收規定會調整，實際分類請以當地清潔隊公告為準。',foot2:'參考資料：',
+    start:'開始分類判定',ready:'環保局長要考你垃圾分類', readyN:'普通：4 個回收桶，10 題，詠唱比較慢。',readyS:'零式：6 個回收桶，12 題，詠唱很快，還有地獄題。',
+    q:(i,n)=>`第 ${i} / ${n} 題`, score:(c)=>`答對 ${c} 題`, casting:'垃圾分類判定：', ok:'判定成功', disp:'各縣市不同，這題丟哪一桶都算對：',
+    died:'你已經死了',answer:'正確答案：',cont:'繼續（Space）',endTitle:'考試結束',save:'📸 存證照',again:'再考一次',hint:'手機可以長按圖片儲存',
+    nowhere:'站在中間不是分類，是逃避。', footName:'小麻糬發瘋產業集團', lic:'艾奧傑亞環保局・分類資格證', licSP:'《垃圾車追逐者》專業證照', item:'考試物品', modeL:'難度', res:'結果', pts:'分', of:'題',
+    pass:'合格', fail:'不及格', special:'特殊資格', date:'考試日期'},
+  ja:{eyebrow:'FF14ダンジョン教習所・特別講座',title:'エオルゼア環境局 零式',subtitle:'台湾編',normal:'ノーマル',savage:'零式',home:'← グループ本社へ',
+    notice:'<b>はじめに：</b>問題は台湾全国共通の分別ルールに基づき、環境部と各県市の環境保護局の公開情報を参考にしています。「県市によって異なる」問題はどの箱でも正解です。実際は地元の清掃隊の案内に従ってください。',
+    boss:'環境局長 詠唱中',binsTitle:'ごみ箱',logTitle:'分別の記録',logEmpty:'開始すると、各問題の正解と理由がここに記録されます。',
+    how:'<kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> か矢印キーで移動、スマホはフィールドをタップ。詠唱が終わる前に正しいごみ箱に入ってください。',
+    foot1:'このツールはジョーク半分の学習ミニゲームです。分別ルールは自治体によって変わるので、実際は地元の清掃隊の案内に従ってください。',foot2:'参考資料（中国語）：',
+    start:'分別判定スタート',ready:'環境局長がごみ分別を出題します', readyN:'ノーマル：ごみ箱4つ、10問、詠唱はゆっくり。',readyS:'零式：ごみ箱6つ、12問、詠唱が速くて地獄問題あり。',
+    q:(i,n)=>`第 ${i} / ${n} 問`, score:(c)=>`正解 ${c} 問`, casting:'ごみ分別判定：', ok:'判定成功', disp:'県市によって異なるため、この問題はどれでも正解：',
+    died:'あなたは死んだ',answer:'正解：',cont:'続ける（Space）',endTitle:'試験終了',save:'📸 免許を保存',again:'もう一回',hint:'スマホは画像を長押しで保存',
+    nowhere:'真ん中に立つのは分別ではなく、現実逃避だ。', footName:'小麻糬発狂産業グループ', lic:'エオルゼア環境局・分別資格証', licSP:'《ごみ収集車を追う者》専門資格証', item:'試験品目', modeL:'難易度', res:'結果', pts:'点', of:'問',
+    pass:'合格', fail:'不合格', special:'特別資格', date:'試験日'}
+};
+const BINS = {
+  paper:{zh:'紙類回收',ja:'紙類',c:'--paper',e:'📄'},
+  plastic:{zh:'塑膠回收',ja:'プラスチック',c:'--plastic',e:'♻️'},
+  food:{zh:'廚餘',ja:'生ごみ',c:'--food',e:'🍂'},
+  general:{zh:'一般垃圾',ja:'一般ごみ',c:'--general',e:'🗑️'},
+  metal:{zh:'鐵鋁罐',ja:'缶（金属）',c:'--metal',e:'🥫'},
+  glass:{zh:'玻璃瓶罐',ja:'ガラスびん',c:'--glass',e:'🍶'},
+};
+const WRONG = {
+  paper:{zh:'紙類回收桶表示：我不是什麼都收。',ja:'紙類の箱：何でも受け取るわけではない。'},
+  plastic:{zh:'塑膠回收桶拒絕了你的好意。',ja:'プラスチックの箱はあなたの好意を断った。'},
+  food:{zh:'廚餘桶：這個連豬都不吃。',ja:'生ごみの箱：これは豚も食べない。'},
+  general:{zh:'可回收的東西被你送去焚化爐了。',ja:'リサイクルできる物を焼却炉に送ってしまった。'},
+  metal:{zh:'它不是金屬，你的判斷也沒有很硬。',ja:'それは金属ではない。あなたの判断も硬くはない。'},
+  glass:{zh:'玻璃桶一眼就看穿了你。',ja:'ガラスの箱にすべて見透かされた。'},
+};
+// tier: n＝普通也會出、s＝零式限定；ok＝算對的桶；disp＝各縣市不同
+const ITEMS = [
+  {e:'📰',zh:'舊報紙',ja:'古新聞',ok:['paper'],t:'n',why:{zh:'乾淨的報紙屬於紙類，可以回收。',ja:'きれいな新聞紙は紙類としてリサイクルできます。'}},
+  {e:'📦',zh:'攤平的紙箱',ja:'たたんだ段ボール',ok:['paper'],t:'n',why:{zh:'紙箱屬於紙類，攤平後回收。',ja:'段ボールは紙類。たたんでから出します。'}},
+  {e:'🧴',zh:'喝完的寶特瓶',ja:'飲み終わったペットボトル',ok:['plastic'],t:'n',why:{zh:'寶特瓶倒空、壓扁後屬於塑膠類回收。',ja:'ペットボトルは中を空にしてつぶし、プラスチックとして回収。'}},
+  {e:'🧻',zh:'用過的衛生紙',ja:'使用済みティッシュ',ok:['general'],t:'n',why:{zh:'衛生紙纖維短又髒污，不能回收，也不是廚餘，要丟一般垃圾。',ja:'ティッシュは繊維が短く汚れているので、リサイクルも生ごみも不可。一般ごみです。'},die:{zh:'它是紙，但它不配。',ja:'それは紙だが、その資格はない。'}},
+  {e:'🍌',zh:'香蕉皮',ja:'バナナの皮',ok:['food'],t:'n',why:{zh:'果皮屬於廚餘。',ja:'果物の皮は生ごみです。'}},
+  {e:'🍚',zh:'吃剩的白飯',ja:'食べ残しのご飯',ok:['food'],t:'n',why:{zh:'吃剩的食物屬於廚餘，先把湯汁瀝乾。',ja:'食べ残しは生ごみ。汁気を切ってから出します。'}},
+  {e:'🍵',zh:'茶葉渣',ja:'茶殻',ok:['food'],t:'n',why:{zh:'臺北市等多數縣市公告茶葉渣屬於廚餘，記得瀝乾水分。',ja:'台北市など多くの県市では茶殻は生ごみ。水気を切って出します。'}},
+  {e:'🍗',zh:'沾滿油的鹽酥雞紙袋',ja:'油まみれの台湾唐揚げの紙袋',ok:['general'],t:'n',why:{zh:'被油汙染的紙不能回收，要丟一般垃圾。',ja:'油で汚れた紙はリサイクルできません。一般ごみです。'},die:{zh:'它裝過雞屁股。',ja:'それは鶏のお尻を入れていた袋だ。'}},
+  {e:'🍢',zh:'竹籤',ja:'竹串',ok:['general'],t:'n',why:{zh:'竹籤不能回收，丟一般垃圾前先折斷，免得刺破垃圾袋。',ja:'竹串はリサイクル不可。袋が破れないよう折ってから一般ごみへ。'}},
+  {e:'😷',zh:'用過的口罩',ja:'使用済みマスク',ok:['general'],t:'n',why:{zh:'用過的口罩屬於一般垃圾。',ja:'使用済みマスクは一般ごみです。'}},
+  {e:'🧾',zh:'感熱紙收據',ja:'感熱紙のレシート',ok:['general'],t:'n',why:{zh:'感熱紙有化學塗層，環境部說明不能回收，要丟一般垃圾。',ja:'感熱紙は化学コーティングがあり、リサイクル不可。一般ごみです。'},die:{zh:'它看起來像紙，其實是化學實驗。',ja:'紙に見えて、実は化学実験だ。'}},
+  {e:'🍱',zh:'洗乾淨的紙便當盒',ja:'洗った紙の弁当箱',ok:['paper'],t:'n',why:{zh:'紙餐具洗乾淨可以回收（紙容器），送去專門的處理廠。',ja:'紙の食器は洗えばリサイクル可能（紙容器）。'}},
+  {e:'🍛',zh:'沒洗、沾滿油的紙便當盒',ja:'洗っていない油まみれの紙弁当箱',ok:['general'],t:'n',why:{zh:'沾油髒污的紙容器不能回收。想回收的話要先洗乾淨。',ja:'油で汚れた紙容器はリサイクル不可。リサイクルするなら洗ってから。'},die:{zh:'你把咖哩送去當再生紙了。',ja:'カレーを再生紙にしようとした。'}},
+  {e:'🛍️',zh:'乾淨的塑膠袋',ja:'きれいなレジ袋',ok:['plastic'],t:'n',why:{zh:'乾淨的塑膠袋可以回收；沾到食物的要丟一般垃圾。',ja:'きれいなレジ袋はリサイクル可。食べ物で汚れたものは一般ごみ。'}},
+  {e:'🎁',zh:'吸管外面的透明包裝',ja:'ストローの透明な包装',ok:['general'],t:'n',why:{zh:'吸管外面的透明塑膠包裝，全台縣市一律算一般垃圾。',ja:'ストローの透明包装は、台湾全県市で一般ごみです。'}},
+  {e:'🥭',zh:'芒果籽',ja:'マンゴーの種',ok:['food'],t:'n',why:{zh:'果核屬於廚餘。',ja:'果物の種は生ごみです。'}},
+  {e:'🌿',zh:'吃剩的九層塔',ja:'食べ残したバジル',ok:['food'],t:'n',why:{zh:'吃剩的熟食屬於廚餘。',ja:'食べ残しの料理は生ごみです。'}},
+  {e:'🧋',zh:'洗乾淨的手搖飲塑膠杯',ja:'洗ったタピオカドリンクのカップ',ok:['plastic'],t:'n',why:{zh:'飲料倒掉、杯子洗乾淨，屬於塑膠類回收。',ja:'中身を捨てて洗ったカップはプラスチックとして回収。'}},
+  {e:'⚫',zh:'喝剩的珍珠',ja:'飲み残しのタピオカ',ok:['food'],t:'n',why:{zh:'珍珠是食物，屬於廚餘。',ja:'タピオカは食べ物なので生ごみ。'},die:{zh:'珍珠表示：我是食物，我有尊嚴。',ja:'タピオカ：私は食べ物だ。尊厳がある。'}},
+  {e:'🥫',zh:'鋁罐',ja:'アルミ缶',ok:['metal'],t:'s',why:{zh:'鐵鋁罐屬於金屬類回收，倒空就好。',ja:'缶は金属としてリサイクル。中を空にするだけ。'}},
+  {e:'🍶',zh:'醬油玻璃瓶',ja:'醤油のガラス瓶',ok:['glass'],t:'s',why:{zh:'玻璃瓶罐洗乾淨後屬於玻璃類回收。',ja:'ガラス瓶は洗ってからガラスとして回収。'}},
+  {e:'🥛',zh:'破掉的玻璃杯碎片',ja:'割れたコップの破片',ok:['general'],t:'s',why:{zh:'碎玻璃不能回收，要用報紙包好、標示「尖銳物」再丟一般垃圾。',ja:'割れたガラスはリサイクル不可。新聞紙で包み「危険」と書いて一般ごみへ。'},die:{zh:'玻璃桶只收完整的瓶罐，碎掉的心也不收。',ja:'ガラスの箱は完全な瓶だけ。割れた心も受け付けない。'}},
+  {e:'🪞',zh:'鏡子',ja:'鏡',ok:['general'],t:'s',why:{zh:'鏡子背面有鍍膜，不能當玻璃回收，要丟一般垃圾。',ja:'鏡は裏面にコーティングがあり、ガラスとして回収できません。一般ごみ。'},die:{zh:'你在鏡子裡看到了錯誤的自己。',ja:'鏡の中に間違えた自分が映っている。'}},
+  {e:'🍖',zh:'吃剩的雞骨頭',ja:'食べ残しの鶏の骨',ok:['general','food'],t:'s',disp:true,why:{zh:'臺北市公告骨頭屬於一般垃圾，部分縣市的熟廚餘可以收，請照當地規定。',ja:'台北市では骨は一般ごみ。一部の県市では生ごみとして回収可能。地元のルールに従ってください。'}},
+  {e:'🥚',zh:'蛋殼',ja:'卵の殻',ok:['food','general'],t:'s',disp:true,why:{zh:'基隆、台北、新北、桃園、高雄、宜蘭、苗栗、雲林、澎湖等 9 縣市可以丟廚餘；台中、台南、彰化等地多半要丟一般垃圾。',ja:'基隆・台北・新北・桃園・高雄など9県市では生ごみ、台中・台南・彰化などでは一般ごみが多いです。'}},
+  {e:'🐚',zh:'蛤蜊殼',ja:'アサリの殻',ok:['food','general'],t:'s',disp:true,why:{zh:'臺北市公告貝殼屬於廚餘（堆肥用），其他縣市可能不同。',ja:'台北市では貝殻は生ごみ（堆肥用）。他の県市では異なる場合があります。'}},
+  {e:'🥤',zh:'洗乾淨的塑膠吸管',ja:'洗ったプラスチックストロー',ok:['plastic','general'],t:'s',disp:true,why:{zh:'基隆、新北、南投、嘉義市、台南、金門 6 縣市列為可回收，其他多數縣市算一般垃圾。',ja:'基隆・新北・南投・嘉義市・台南・金門の6県市ではリサイクル可、その他の多くでは一般ごみ。'}},
+  {e:'🎫',zh:'傳統紙本統一發票',ja:'紙の統一発票（台湾の領収書）',ok:['paper'],t:'s',why:{zh:'南投縣環保局說明：傳統紙本發票屬於紙類，可以回收。',ja:'南投県環境保護局によると、従来の紙の発票は紙類としてリサイクル可。'}},
+  {e:'🧾',zh:'電子發票證明聯',ja:'電子発票の控え（感熱紙）',ok:['general'],t:'s',why:{zh:'電子發票證明聯是感熱紙，不能回收，要丟一般垃圾。',ja:'電子発票の控えは感熱紙なのでリサイクル不可、一般ごみです。'},die:{zh:'它跟上一題長得很像，但它是感熱紙。',ja:'さっきの問題と似ているが、これは感熱紙だ。'}},
+  {e:'⬜',zh:'乾淨的保麗龍盒',ja:'きれいな発泡スチロール',ok:['plastic'],t:'s',why:{zh:'乾淨的保麗龍屬於塑膠類回收（臺北市列在立體類）；沾油的要丟一般垃圾。',ja:'きれいな発泡スチロールはプラスチックとして回収。油汚れのあるものは一般ごみ。'}},
+  {e:'🥤',zh:'洗乾淨的紙杯',ja:'洗った紙コップ',ok:['paper'],t:'s',why:{zh:'紙杯屬於紙容器，洗乾淨就能回收。',ja:'紙コップは紙容器。洗えばリサイクル可能。'}},
+];
+const MODES = {n:{bins:['paper','plastic','food','general'],count:10,cast:6.5}, s:{bins:['paper','plastic','metal','glass','food','general'],count:12,cast:4.2}};
+const LS=k=>{try{return localStorage.getItem(k)}catch(e){return null}}, SS=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
+let lang = LS('epa_lang')==='ja'?'ja':'zh', mode = LS('epa_mode')==='s'?'s':'n';
+const $=id=>document.getElementById(id);
+const cv=$('arena'), cx=cv.getContext('2d'), W=cv.width, H=cv.height, C={x:W/2,y:H/2};
+const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const tr=k=>T[lang][k];
+const binPos=()=>{ const bs=MODES[mode].bins, R=W*0.37; return bs.map((b,i)=>{ const a=-Math.PI/2+i*2*Math.PI/bs.length; return {b,x:C.x+Math.cos(a)*R,y:C.y+Math.sin(a)*R}; }); };
+const ZR=W*0.105;
+let G={state:'idle'};
+const keys={};
+
+function applyLang(){
+  document.documentElement.lang = lang==='ja'?'ja':'zh-Hant-TW';
+  document.querySelectorAll('[data-t]').forEach(e=>{ const v=tr(e.dataset.t); if(typeof v==='string') e.textContent=v; });
+  document.querySelectorAll('[data-t-html]').forEach(e=>{ e.innerHTML=tr(e.dataset.tHtml); });
+  $('lang-zh').setAttribute('aria-pressed',lang==='zh'); $('lang-ja').setAttribute('aria-pressed',lang==='ja');
+  $('mode-n').setAttribute('aria-pressed',mode==='n'); $('mode-s').setAttribute('aria-pressed',mode==='s');
+  $('legend').innerHTML=MODES[mode].bins.map(b=>`<span><i style="background:var(${BINS[b].c})"></i>${BINS[b][lang]}</span>`).join('');
+  renderLog(); hud();
+  if(G.state==='idle'||G.state==='end') showReady(G.state==='end');
+}
+function hud(){ const n=MODES[mode].count; $('hudQ').textContent = G.q? tr('q')(Math.min(G.idx+1,n),n) : ''; $('hudScore').textContent = G.q? tr('score')(G.correct) : ''; }
+function renderLog(){
+  const L=$('log');
+  if(!G.log||!G.log.length){ L.innerHTML=`<span class="empty">${tr('logEmpty')}</span>`; return; }
+  L.innerHTML=G.log.slice().reverse().map(r=>`<div class="row"><span class="${r.ok?'ok':'ng'}">${r.ok?'✓':'✗'} ${r.it.e} ${r.it[lang]}</span> → ${r.it.ok.map(b=>BINS[b][lang]).join(' / ')}<br><span class="why">${r.it.why[lang]}</span>${r.it.disp?`<br><span class="disp">※ ${tr('disp')}${r.it.ok.map(b=>BINS[b][lang]).join('、')}</span>`:''}</div>`).join('');
+}
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function pickQuestions(){
+  const m=MODES[mode];
+  if(mode==='n') return shuffle(ITEMS.filter(i=>i.t==='n')).slice(0,m.count);
+  const hard=shuffle(ITEMS.filter(i=>i.t==='s')).slice(0,8), easy=shuffle(ITEMS.filter(i=>i.t==='n')).slice(0,m.count-8);
+  return shuffle(hard.concat(easy));
+}
+function ov(html, cls){ const o=$('ov'); o.hidden=false; o.innerHTML=`<div class="ovbox ${cls||''}">${html}</div>`; }
+function hideOv(){ $('ov').hidden=true; }
+function showReady(again){
+  ov(`<h3>${tr('ready')}</h3><p class="how">${mode==='n'?tr('readyN'):tr('readyS')}</p><p class="how">${tr('how')}</p><div class="btns"><button class="btn pri" id="go" type="button">${tr('start')}</button></div>`);
+  $('go').onclick=start;
+}
+function start(){
+  G={state:'cast', q:pickQuestions(), idx:0, correct:0, log:[], p:{x:C.x,y:C.y+W*0.12}, target:null, t0:performance.now()/1000, castLen:MODES[mode].cast+1, flash:null};
+  hideOv(); renderLog(); hud(); setCast();
+}
+function setCast(){ const it=G.q[G.idx]; $('castName').textContent=`${tr('casting')}${it.e} ${it[lang]}`; }
+function resolve(){
+  const it=G.q[G.idx];
+  const inBin=binPos().find(z=>Math.hypot(G.p.x-z.x,G.p.y-z.y)<ZR);
+  const ok = inBin && it.ok.includes(inBin.b);
+  G.log.push({it,ok}); renderLog();
+  if(ok){ G.correct++; G.flash={x:inBin.x,y:inBin.y,t:performance.now()/1000,c:css('--accent')}; G.state='pause'; G.resumeAt=performance.now()/1000+1.4; hud(); return; }
+  G.state='dead';
+  const quip = it.die? it.die[lang] : inBin? WRONG[inBin.b][lang] : tr('nowhere');
+  ov(`<span class="t">${tr('died')}</span><span class="s">YOU DIED</span><p class="q">${quip}</p><hr><p>${it.e} ${it[lang]}</p><p class="ans">${tr('answer')}${it.ok.map(b=>BINS[b][lang]).join(' / ')}</p><p class="why">${it.why[lang]}</p>${it.disp?`<p class="disp">※ ${tr('disp')}${it.ok.map(b=>BINS[b][lang]).join('、')}</p>`:''}<div class="btns"><button class="btn pri" id="cont" type="button">${tr('cont')}</button></div>`,'death');
+  $('cont').onclick=next; hud();
+}
+function next(){
+  hideOv(); G.idx++;
+  if(G.idx>=G.q.length){ finish(); return; }
+  G.state='cast'; G.t0=performance.now()/1000; G.castLen=MODES[mode].cast; setCast(); hud();
+}
+function tierOf(c,n){
+  const zh=lang==='zh';
+  if(c===n) return {title:zh?'資源回收大使':'リサイクル大使',line:zh?'清潔隊員看到你會敬禮。':'清掃隊員があなたに敬礼する。'};
+  if(c>=Math.ceil(n*0.7)) return {title:zh?'合格分類員':'合格分別員',line:zh?'偶爾分錯，但垃圾車願意等你。':'たまに間違えるが、ごみ収集車は待ってくれる。'};
+  if(c>=Math.ceil(n*0.4)) return {title:zh?'見習清潔隊員':'見習い清掃隊員',line:zh?'記得每週看一次回收日曆。':'週に一度は収集カレンダーを見よう。'};
+  if(c>0) return {title:zh?'建議重修垃圾分類':'ごみ分別の再履修を推奨',line:zh?'環保局長已經在門口等你了。':'環境局長が玄関で待っている。'};
+  return {title:'',line:''};
+}
+function rr(x,X,Y,w,h,r){ x.beginPath(); x.moveTo(X+r,Y); x.arcTo(X+w,Y,X+w,Y+h,r); x.arcTo(X+w,Y+h,X,Y+h,r); x.arcTo(X,Y+h,X,Y,r); x.arcTo(X,Y,X+w,Y,r); x.closePath(); }
+function drawLicense(){
+  const n=G.q.length, c=G.correct, score=Math.round(c/n*100), SP=c===0, tier=tierOf(c,n);
+  const w=1200,h=760, el=document.createElement('canvas'); el.width=w; el.height=h; const x=el.getContext('2d');
+  const F='"Noto Sans TC","Noto Sans JP","PingFang TC","Microsoft JhengHei",sans-serif';
+  const AC=SP?'#e070c8':'#6fd3a0', GOLD=SP?'#ffa8dc':'#e8c27a', TXT='#eef2f2', DIM=SP?'#b096b0':'#93a89f', BOX=SP?'#2a1630':'#17302a', BG=SP?'#170c1a':'#0c1714';
+  x.fillStyle=BG; rr(x,0,0,w,h,36); x.fill();
+  x.strokeStyle=SP?'rgba(224,112,200,.35)':'rgba(111,211,160,.25)'; x.lineWidth=2; rr(x,1,1,w-2,h-2,36); x.stroke();
+  x.textAlign='left'; x.textBaseline='alphabetic';
+  x.fillStyle=AC; x.font=`700 24px ${F}`; x.fillText(lang==='zh'?'艾奧傑亞環保局零式・台灣篇':'エオルゼア環境局 零式・台湾編', 56, 78);
+  const L=SP?tr('licSP'):tr('lic'); let fs=46; x.font=`900 ${fs}px ${F}`; while(x.measureText(L).width>880&&fs>26){fs-=2;x.font=`900 ${fs}px ${F}`;}
+  x.fillStyle=GOLD; x.fillText(L, 56, 136);
+  // 右上：環保局印章
+  x.strokeStyle=GOLD; x.lineWidth=5; x.beginPath(); x.arc(w-96,96,40,0,Math.PI*2); x.stroke(); x.lineWidth=2; x.beginPath(); x.arc(w-96,96,32,0,Math.PI*2); x.stroke();
+  x.fillStyle=GOLD; x.font=`900 34px ${F}`; x.textAlign='center'; x.textBaseline='middle'; x.fillText(SP?'退':'環', w-96, 98); x.textAlign='left'; x.textBaseline='alphabetic';
+  x.strokeStyle=SP?'rgba(224,112,200,.3)':'rgba(111,211,160,.25)'; x.beginPath(); x.moveTo(56,190); x.lineTo(w-56,190); x.stroke();
+  x.fillStyle=DIM; x.font=`500 22px ${F}`; x.fillText(tr('modeL'), 56, 242); x.textAlign='right'; x.fillText(tr('date'), w-56, 242); x.textAlign='left';
+  x.fillStyle=TXT; x.font=`700 34px ${F}`; x.fillText(mode==='s'?tr('savage'):tr('normal'), 56, 290);
+  const d=new Date(); x.textAlign='right'; x.font=`700 30px ${F}`; x.fillText(`${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}`, w-56, 290); x.textAlign='left';
+  const bw=(w-112-48)/3, by=325, bh=130;
+  [[lang==='zh'?'最終成績':'最終成績',String(score),tr('pts'),AC],[lang==='zh'?'答對題數':'正解数',`${c}/${n}`,tr('of'),AC],[tr('res'),SP?tr('special'):score>=60?tr('pass'):tr('fail'),'',SP?GOLD:score>=60?AC:'#ff5c74']].forEach(([k,v,u,col],i)=>{
+    const bx=56+i*(bw+24); x.fillStyle=BOX; rr(x,bx,by,bw,bh,22); x.fill();
+    x.textAlign='center'; x.fillStyle=DIM; x.font=`500 21px ${F}`; x.fillText(k, bx+bw/2, by+44);
+    x.font=`900 50px ${F}`; const vw=x.measureText(v).width; x.font=`500 22px ${F}`; const uw=u?x.measureText(u).width+8:0; const sx=bx+bw/2-(vw+uw)/2;
+    x.textAlign='left'; x.fillStyle=col; x.font=`900 50px ${F}`; x.fillText(v,sx,by+104); if(u){ x.fillStyle=DIM; x.font=`500 22px ${F}`; x.fillText(u,sx+vw+8,by+104); }
+  });
+  x.textAlign='center';
+  if(SP){ x.fillStyle=TXT; x.font=`700 27px ${F}`;
+    x.fillText(lang==='zh'?'「本持證人具有讓每一件垃圾都進錯桶的罕見天賦。」':'「本資格者は、すべてのごみを間違った箱に入れる稀有な才能を持つ。」', w/2, 528);
+    x.fillText(lang==='zh'?'「凡其丟過的桶子，清潔隊員皆需重新分類。」':'「その者が捨てた箱は、清掃隊員が必ず分別し直すこと。」', w/2, 580); }
+  else { x.fillStyle=GOLD; x.font=`900 40px ${F}`; x.fillText(tier.title, w/2, 530); x.fillStyle=TXT; x.font=`500 25px ${F}`; x.fillText(tier.line, w/2, 578); }
+  x.strokeStyle=SP?'rgba(224,112,200,.3)':'rgba(111,211,160,.25)'; x.beginPath(); x.moveTo(56,640); x.lineTo(w-56,640); x.stroke();
+  x.textAlign='left'; x.fillStyle=DIM; x.font=`500 22px ${F}`; x.fillText(tr('footName'), 56, 696);
+  x.textAlign='right'; x.fillStyle=AC; x.font=`700 22px ${F}`; x.fillText(lang==='zh'?'各縣市規定以當地清潔隊公告為準':'実際の分別は地元の清掃隊の案内に従うこと', w-56, 696);
+  return {url:el.toDataURL('image/png'), score, SP};
+}
+function finish(){
+  G.state='end'; $('castName').textContent='—'; $('castFill').style.width='0';
+  let lic=null; try{ lic=drawLicense(); }catch(e){}
+  G.licURL=lic&&lic.url;
+  ov(`<h3>${tr('endTitle')}：${lic?lic.score:''}${tr('pts')}</h3>${lic?`<img src="${lic.url}" alt="${tr('lic')}"><p class="how">${tr('hint')}</p>`:''}<div class="btns">${lic?`<button class="btn gold" id="save" type="button">${tr('save')}</button>`:''}<button class="btn pri" id="again" type="button">${tr('again')}</button></div>`);
+  if(lic) $('save').onclick=()=>{ const a=document.createElement('a'); a.href=G.licURL; a.download=lang==='zh'?'艾奧傑亞環保局證照.png':'eorzea-kankyo-license.png'; document.body.appendChild(a); a.click(); a.remove(); };
+  $('again').onclick=start;
+}
+
+// 輸入
+addEventListener('keydown',e=>{ const k=e.key.toLowerCase(); if(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright'].includes(k)){ keys[k]=true; if(G.state==='cast'){ e.preventDefault(); G.target=null; } }
+  if(e.code==='Space'&&G.state==='dead'){ e.preventDefault(); next(); } });
+addEventListener('keyup',e=>{ keys[e.key.toLowerCase()]=false; });
+cv.addEventListener('pointerdown',e=>{ if(G.state!=='cast'&&G.state!=='pause') return; const r=cv.getBoundingClientRect(); G.target={x:(e.clientX-r.left)/r.width*W, y:(e.clientY-r.top)/r.height*H}; });
+
+function emoji(x,s,X,Y){ x.font=`${s}px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif`; x.textAlign='center'; x.textBaseline='middle'; x.fillText(s>0?X:'',Y.x,Y.y); }
+let last=performance.now()/1000;
+function frame(){
+  const now=performance.now()/1000, dt=Math.min(0.05,now-last); last=now;
+  if(G.state==='cast'||G.state==='pause'){
+    let vx=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0), vy=(keys.s||keys.arrowdown?1:0)-(keys.w||keys.arrowup?1:0);
+    if(!vx&&!vy&&G.target){ const dx=G.target.x-G.p.x, dy=G.target.y-G.p.y, L=Math.hypot(dx,dy); if(L>4){ vx=dx/L; vy=dy/L; } else G.target=null; }
+    const L=Math.hypot(vx,vy)||1, sp=W*0.42;
+    G.p.x=Math.max(20,Math.min(W-20,G.p.x+vx/L*sp*dt)); G.p.y=Math.max(20,Math.min(H-20,G.p.y+vy/L*sp*dt));
+  }
+  if(G.state==='cast'){ const f=(now-G.t0)/G.castLen; $('castFill').style.width=Math.min(100,f*100)+'%'; if(f>=1) resolve(); }
+  if(G.state==='pause' && now>=G.resumeAt) next();
+  draw(now); requestAnimationFrame(frame);
+}
+function draw(now){
+  const x=cx; x.clearRect(0,0,W,H);
+  // 地板
+  x.fillStyle='#0f1a17'; x.fillRect(0,0,W,H);
+  x.strokeStyle='rgba(140,200,170,.07)'; x.lineWidth=1; for(let i=40;i<W;i+=40){ x.beginPath(); x.moveTo(i,0); x.lineTo(i,H); x.stroke(); x.beginPath(); x.moveTo(0,i); x.lineTo(W,i); x.stroke(); }
+  x.strokeStyle='rgba(111,211,160,.35)'; x.lineWidth=3; x.beginPath(); x.arc(C.x,C.y,W*0.47,0,Math.PI*2); x.stroke();
+  // 回收桶區
+  binPos().forEach(z=>{ const col=css(BINS[z.b].c);
+    x.fillStyle=col+'33'; x.strokeStyle=col; x.lineWidth=4; x.beginPath(); x.arc(z.x,z.y,ZR,0,Math.PI*2); x.fill(); x.stroke();
+    emoji(x,40,BINS[z.b].e,{x:z.x,y:z.y-12});
+    x.fillStyle='#f1f6f3'; x.font=`700 ${lang==='ja'?20:22}px "Noto Sans TC","Noto Sans JP",sans-serif`; x.textAlign='center'; x.textBaseline='middle'; x.fillText(BINS[z.b][lang], z.x, z.y+30);
+  });
+  if(G.flash && now-G.flash.t<0.8){ const a=1-(now-G.flash.t)/0.8; x.strokeStyle=`rgba(111,211,160,${a})`; x.lineWidth=10; x.beginPath(); x.arc(G.flash.x,G.flash.y,ZR+10*(1-a)+6,0,Math.PI*2); x.stroke();
+    x.fillStyle=`rgba(111,211,160,${a})`; x.font='900 34px "Noto Sans TC",sans-serif'; x.textAlign='center'; x.fillText(tr('ok'),C.x,C.y+ZR+40); }
+  // 王＋詠唱中的垃圾
+  x.fillStyle='#1c2b27'; x.strokeStyle='#e8c27a'; x.lineWidth=3; x.beginPath(); x.arc(C.x,C.y,46,0,Math.PI*2); x.fill(); x.stroke();
+  emoji(x,48,'🚛',C);
+  if(G.state==='cast'||G.state==='dead'){ const it=G.q[G.idx]; x.fillStyle='rgba(12,19,17,.85)'; rr(x,C.x-74,C.y-150,148,92,16); x.fill(); x.strokeStyle='#e8c27a'; x.lineWidth=2; x.stroke(); emoji(x,60,it.e,{x:C.x,y:C.y-104}); }
+  // 玩家
+  if(G.p){ x.fillStyle='#ffffff'; x.strokeStyle='#08231a'; x.lineWidth=4; x.beginPath(); x.arc(G.p.x,G.p.y,15,0,Math.PI*2); x.fill(); x.stroke();
+    x.fillStyle='#6fd3a0'; x.font='700 18px "Noto Sans TC",sans-serif'; x.textAlign='center'; x.textBaseline='bottom'; x.fillText(lang==='zh'?'你':'あなた',G.p.x,G.p.y-18);
+    if(G.target){ x.strokeStyle='rgba(255,255,255,.4)'; x.setLineDash([6,6]); x.beginPath(); x.moveTo(G.p.x,G.p.y); x.lineTo(G.target.x,G.target.y); x.stroke(); x.setLineDash([]); } }
+}
+
+$('lang-zh').onclick=()=>{ lang='zh'; SS('epa_lang',lang); applyLang(); if(G.state==='cast') setCast(); };
+$('lang-ja').onclick=()=>{ lang='ja'; SS('epa_lang',lang); applyLang(); if(G.state==='cast') setCast(); };
+$('mode-n').onclick=()=>{ if(G.state==='cast'||G.state==='pause'||G.state==='dead') return; mode='n'; SS('epa_mode',mode); applyLang(); };
+$('mode-s').onclick=()=>{ if(G.state==='cast'||G.state==='pause'||G.state==='dead') return; mode='s'; SS('epa_mode',mode); applyLang(); };
+window.__epa={get G(){return G}, start, next, binPos, ITEMS, setLang:l=>{lang=l;applyLang();}, setMode:m=>{mode=m;applyLang();}};
+applyLang(); requestAnimationFrame(frame);
+</script>
+</body></html>
